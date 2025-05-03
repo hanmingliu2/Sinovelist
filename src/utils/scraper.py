@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Tag
-from path import DATA_FOLDER, NOVELS_FOLDER
+from path import NOVELS_FOLDER, NOVELS_METADATA
 
 # Log INFO level messages in console
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -117,7 +117,7 @@ def scrape_novel(
 
 
 def main():
-    metadata = pd.read_csv(DATA_FOLDER / "metadata.csv")
+    metadata = pd.read_csv(NOVELS_METADATA)
     for _, row in metadata.iterrows():
         scrape_novel(**row)
 

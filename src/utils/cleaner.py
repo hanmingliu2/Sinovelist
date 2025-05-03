@@ -11,7 +11,7 @@ from mapping import (
     SPANISH_MAP,
     WHITESPACES,
 )
-from path import METADATA_CSV, NOVELS_FOLDER
+from path import NOVELS_FOLDER, NOVELS_METADATA
 
 # Log INFO level messages in console
 LOGGER = logging.getLogger(__name__)
@@ -301,7 +301,7 @@ def clean_language(text: str) -> str:
 
 
 def main():
-    df = pd.read_csv(METADATA_CSV)
+    df = pd.read_csv(NOVELS_METADATA)
     df["filename"] = df["author_name"] + "_" + df["novel_name"] + ".txt"
     df["filepath"] = df["filename"].apply(lambda f: NOVELS_FOLDER / f)
     df["is_scraped"] = df["filepath"].apply(lambda p: p.exists())
