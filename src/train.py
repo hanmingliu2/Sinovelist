@@ -94,7 +94,7 @@ def main():
     for epoch in range(EPOCHS):
         model.train(True)
         batch_count = 0
-        train_loss = 0
+        train_loss = 0.0
 
         # Use tqdm for progress bar
         batch = tqdm(
@@ -108,7 +108,7 @@ def main():
             optimizer.update(model, grads)
             train_loss += loss.item()
             mx.eval(model.parameters(), optimizer.state)
-            batch.set_postfix(loss=f"{train_loss / batch_count:.4f}")
+            batch.set_postfix(loss=f"{(train_loss / batch_count):.4f}")
 
         model.train(False)  # set eval mode
         batch_count = 0
@@ -124,7 +124,7 @@ def main():
             batch_count += 1
             loss = loss_fn(model, x, y)
             validation_loss += loss.item()
-            batch.set_postfix(loss=f"{validation_loss / batch_count:.4f}")
+            batch.set_postfix(loss=f"{(validation_loss / batch_count):.4f}")
 
     # Save model
     model_path = MODELS_FOLDER / "model.pkl"
