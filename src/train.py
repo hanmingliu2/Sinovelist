@@ -7,6 +7,7 @@ import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
+from mlx.utils import tree_map
 from tqdm import tqdm
 
 from models.gpt2 import (
@@ -24,7 +25,7 @@ TRAIN_DATA = DATA_FOLDER / "train.bin"
 VALIDATION_DATA = DATA_FOLDER / "val.bin"
 
 BATCH_SIZE = 256
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-4
 EPOCHS = 3
 
 
@@ -72,7 +73,8 @@ def get_batch(filepath: Path):
 
 
 def loss_fn(model: GPT, x: mx.array, y: mx.array) -> mx.array:
-    logits = model(x)
+    # Cast logits to float32 for numerical stability
+    logits = model(x).astype(mx.float32)
     B, T, C = logits.shape
     logits = logits.reshape(B * T, C)
     y = y.reshape(B * T)
@@ -84,7 +86,7 @@ def main():
     model = GPT()
     mx.eval(model.parameters())
     loss_and_grad = nn.value_and_grad(model, loss_fn)
-    optimizer = optim.AdamW(learning_rate=LEARNING_RATE)
+    optimizer = optim.AdamW(learning_rate=LEARNING_RATE, eps=1e-4)
 
     # Calculate total batches for progress bars
     train_batches = count_batches(TRAIN_DATA)
@@ -105,6 +107,10 @@ def main():
         for x, y in batch:
             batch_count += 1
             loss, grads = loss_and_grad(model, x, y)
+
+            # Clip gradients to [-1, 1]
+            grads = tree_map(lambda g: mx.clip(g, -1.0, 1.0), grads)
+
             optimizer.update(model, grads)
             train_loss += loss.item()
             mx.eval(model.parameters(), optimizer.state)

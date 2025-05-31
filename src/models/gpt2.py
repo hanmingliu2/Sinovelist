@@ -62,7 +62,7 @@ class CausalSelfAttention(nn.Module):
         attentions = (Q @ K.transpose(0, 1, 3, 2)) * self.__scale_factor
 
         # Apply causal masking
-        attentions = mx.where(self.__causal_mask[:T, :T] == 0, -1e9, attentions)
+        attentions = mx.where(self.__causal_mask[:T, :T] == 0, -1e4, attentions)
         attentions = mx.softmax(attentions, axis=-1)
         attentions = self.attention_dropout(attentions)
 
